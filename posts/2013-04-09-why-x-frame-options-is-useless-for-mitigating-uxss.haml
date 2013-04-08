@@ -1,0 +1,22 @@
+%h2 Why the X-Frame-Options header is useless at mitigating UXSS
+%article
+  :markdown
+    I first ran into `X-Frame-Options` when trying to abuse a UXSS bug I had found. I wanted to steal autofilled form data from a webmail login page, but the page was sent with the `X-Frame-Options` HTTP header set to `DENY`. Doh! Now the only way to get a handle to the webmail login's page would be to pop open a new window, and if the user has popup blocker enabled (and uses a sane browser), then we will have to fall back to a one-click vector. While this still enables the UXSS to steal autofilled data, it is not as scary as a no-click vector.
+    
+    Note: it is enough to pop open just one browser window. You can then make it tiny and hide it behind the parent window and use it to iterate through the sites that you want to steal data from.
+    
+    I thought, <i>maybe there is a bypass to `X-Frame-Options`</i>. I searched around a bit and found [a sneaky trick](/) that works [most of the time*](#): render a URL in the iframe that generates a 413 URI Too Long response. Most of the time, this request is handled at the "router" level, which is usually heavily abstracted from the actual web app logic, and hence does not "know" to send back an `X-Frame-Options` header.
+    
+    It is easy to find such a URL on most domains. Let's say we're trying to steal data from example.webmail.com:
+    
+    var i = document.createElement('iframe');
+    document.body.appendChild(i);
+    var url = 'https://accounts.example-webmail.com/';
+    for(var i=0;i<99999;i++) url+='AAAAAAAAAAAAAAAA';
+    i.src = url;
+    
+    And sure enough, the frame loads a "Request too long" message from Google or Twitter or whoever you are stealing data from. From here, we can execute script from the context of "accounts.example-webmail.com". But we still have not rendered the login form. How do we get the browser to give us the autofill data? Easy: trick it into thinking the page has changed.
+    
+    First, we do a `history.pushState(0,0, 'https://accounts.example-webmail.com/')` to set the current page to the login page that the browser is expecting. Then, we use AJAX to fetch the contents of "/" and render them into the current document. Finally, we do another `history.pushState()` to "trick" the browser into filling out the login fields.
+    
+    And there, we have neatly bypassed X-Frame-Options to steal form data through an iframe. :)

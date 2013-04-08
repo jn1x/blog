@@ -1,0 +1,112 @@
+body {
+  font-family: 'Noto Sans', Helvetica, sans-serif;
+  font-size: 16px;
+}
+
+#page-wrap {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+// ======= MODALS ========
+#modals > #loader {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  .transition(0.4s); // fade
+  &>div.bg {
+    background: #fff;
+    .box-shadow(inset 0 0 160px 75px rgba(0,0,0,.15));
+    width: 100%; height: 100%;
+    &.opaque {
+      .opacity(1);
+    }
+  }
+}
+.hidden {
+  .opacity(0); // so we can 'fade in'
+}
+
+// ======= HEADERS ========
+@header-height: 60px;
+header {
+  border-bottom: 4px solid #f0f0f0;
+  hgroup {
+    padding-left: 10px;
+    height: @header-height;
+    line-height: @header-height;
+    h1, h2 {
+      display: inline-block;
+      width: auto;
+      margin: 0;
+    }
+    h1 {
+      font-size: 1.8em;
+      font-weight: 700;
+    }
+    h2 {
+      margin-left: 7px;
+      font-size: .8em;
+      font-weight: normal;
+      color: #aaa;
+    }
+  }
+  &.row {
+    margin-bottom: 0;
+  }
+
+  nav#search {
+    height: @header-height;
+    line-height: @header-height;
+    form {
+      text-align: right;
+      input {
+        display: inline-block;
+        background: #eaeaea;
+        border: none;
+        font-size: 1.2em;
+        font-weight: normal;
+        line-height: @header-height - 20px;
+        height: @header-height - 20px;
+        .rounded(6px);
+        padding: 0 8px;
+      }
+    }
+  }
+}
+
+section#content {
+  min-height: 200px;
+  padding: 10px 0;
+}
+
+// ======== FOOTER =========
+footer {
+  border-top: 4px solid #f0f0f0;
+  height: @header-height;
+  line-height: @header-height;
+  text-align: center;
+  font-size: .8em;
+  color: #aaa;
+  &.row {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width:767px) {
+  header hgroup {
+    text-align: center;
+  }
+  header nav#search {
+    padding-left: 10px;
+    padding-right: 10px;
+    form {
+      text-align: center;
+      input {
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto;
+      }
+    }
+  }
+}
