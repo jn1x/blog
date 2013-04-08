@@ -1,0 +1,5 @@
+[
+  { "compiler": "less",
+    "output"  : "layout.css",
+    "input"   : ["responsive-gs-12col.css", "reset.css", "layout.less"] }
+]

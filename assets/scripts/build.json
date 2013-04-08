@@ -1,0 +1,5 @@
+[
+  { "compiler": "coffee",
+    "output"  : "layout.js",
+    "input"   : ["layout.coffee"] }
+]

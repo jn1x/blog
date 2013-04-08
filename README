@@ -1,0 +1,15 @@
+Static blog generator written by hand.
+Written by @jnix.
+Released under the MIT License.
+
+To write a post, create a haml file in posts/, then regenerate the index:
+  echo "Post Content" > posts/2012-04-30-time-to-start-a-new-blog.haml
+  coffee build.coffee
+
+To regenerate the post index, do:
+  npm install
+  coffee build.coffee
+
+To rebuild the layout assets (less/haml/coffescripts), do:
+  npm install --dev
+  coffee build.coffee -a
