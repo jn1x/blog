@@ -1,0 +1,17 @@
+%h2 Crawling an OSX user's hard drive using file:// URLs and .DS_Store files
+%article
+  :markdown
+    Now that you have file access using Flash, let's figure out how to crawl a user's HD to make this access more useful. If your victim runs OSX, you can request the .DS_Store files at specific locations on the user's drive in order to "discover" nice juicy user files. However, in order to look up "user" paths, you need to know the user's name. We can usually find this in /var/log/install.log or a similar absolutely-pathed file:
+    
+    Now that we know the username, we can iterate over known possible DS_Store locations:
+    
+    And now we can use the Flash bypass to get the .DS_Store file contents:
+    
+    `var x = new XMLHttpRequest;
+    x.open('GET', 'file:///')`
+    
+    And finally we can parse the .DS_Store and look at any interesting files listed:
+    
+    ``
+    
+    Then send it back up to your server using any variety of methods. Submitting a form into an iframe works fine, so does appending the data to an image tag (GET request).
